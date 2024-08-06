@@ -75,9 +75,9 @@ int main()
         double alpha_beta_airspeed[n]; // Aero Params Vector
 	
 	// Velocities - Cruise Speed of Cessna 172 ~ 110 knots
-	vel_body_ms[0] = 56.5; // X Velocity in M/S
+	vel_body_ms[0] = 61; // X Velocity in M/S
 	vel_body_ms[1] = 0.0; // Y Velocity in M/S
-	vel_body_ms[2] = 0.0; // Z Velocity in M/S
+	vel_body_ms[2] = -1; // Z Velocity in M/S
 	
 	// Forces - Zero for Now
 	force_body_n[0] = 1200; 
@@ -91,7 +91,7 @@ int main()
 	
 	// Euler Angles - Phi, Theta and Psi in NED - 3 - 2 - 1 Rotation Order
 	eulers_rad[0] = 25 * (M_PI/180); // Good
-	eulers_rad[1] = 0 * (M_PI/180); // Good
+	eulers_rad[1] = -1 * (M_PI/180); // Good
 	eulers_rad[2] = 0 * (M_PI/180); //Good 
 	
 	// Initialize Quaternion 
@@ -141,8 +141,8 @@ int main()
 		
 	}
 	
-	eom_prev[0] = 56.5; // X Body Velocity Initial
-	eom_prev[2] = 0; 
+	eom_prev[0] = 61; // X Body Velocity Initial
+	eom_prev[2] = -1; 
 	
 	// Open file
 	std::ofstream file;

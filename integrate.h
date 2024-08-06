@@ -8,5 +8,8 @@ namespace FE
 	static void euler_integrate_6(double[], double[], double); 
 	static void euler_integrate_3(double[], double[], double); 
 	static void euler_integrate_4(double[], double[], double);
+	static void rk4_integrate_6(double[], double[], double); 
+	static void rk4_integrate_3(double[], double[], double); 
+	static void rk4_integrate_4(double[], double[], double);
 	}; 
 }

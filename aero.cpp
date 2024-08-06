@@ -133,10 +133,10 @@ void aero::rotate_W2B(double vector_in[], double alpha_beta_airspeed[], double v
 
 // Function 6 - Drag Force Stackup - q * s * drag force coefficients --
 // DATCOM output for now, assume it accounts for Parasitic Drag and NOT induced drag
-void aero::drag_force_wind_x(double q, double& drag_out) 
+void aero::drag_force_wind_x(double q, double alpha_beta_airspeed[], double& drag_out) 
 {
 	
-	double params[27];
+	double params[28];
 	/*
 	params[0] = mass
 	params[1] = C_bar/Chord
@@ -165,13 +165,14 @@ void aero::drag_force_wind_x(double q, double& drag_out)
 	params[24] = cy_drudder
 	params[25] = aspect ratio
 	params[26] = oswald efficiency
+	params[27] = cd_alpha
 	*/
 	
 	// Call Test Vehicle Definition
 	aero::test_vehicle_cessna(params);
 	
-	// Drag Force = -Cd_0 + Cd_i * q * a_ref -- Acts negative along wind x axis 
-	drag_out =(params[18] + ( (params[19]*params[19]) / (M_PI*params[26]*params[25]) ) ) * q * params[3]; 
+	// Drag Force = -Cd_0 + cd_alpha*alpha + Cd_i * q * a_ref -- Acts negative along wind x axis 
+	drag_out =(params[18] + (params[27] * alpha_beta_airspeed[0]) + ( (params[19]*params[19]) / (M_PI*params[26]*params[25]) ) ) * q * params[3]; 
 		
 }
 
@@ -179,7 +180,7 @@ void aero::drag_force_wind_x(double q, double& drag_out)
 void aero::lift_force_wind_z(double q_bar, double alpha_beta_airspeed[], double rot_body_radsec[], double& lift_out) 
 {
 	
-	double params[27];
+	double params[28];
 	double alpha, airspeed; 
 	
 	/*
@@ -210,6 +211,7 @@ void aero::lift_force_wind_z(double q_bar, double alpha_beta_airspeed[], double 
 	params[24] = cy_drudder
 	params[25] = aspect ratio
 	params[26] = oswald efficiency
+	params[27] = cd_alpha
 	*/
 	
 	alpha = alpha_beta_airspeed[0]; 
@@ -219,7 +221,7 @@ void aero::lift_force_wind_z(double q_bar, double alpha_beta_airspeed[], double 
 	aero::test_vehicle_cessna(params);
 	
 	// Lift Force = ( Cl_0 + Clq + Cl_alpha ) * q * s
-	lift_out = (params[19] + ( params[20] * alpha )+ ( (params[21] * rot_body_radsec[1])/( 2 * airspeed ) ) ) * q_bar * params[3]; 
+	lift_out = (params[19] + ( params[20] * alpha ) + ( (params[21] * rot_body_radsec[1])/( 2 * airspeed ) ) ) * q_bar * params[3]; 
 		
 } 
 
@@ -227,7 +229,7 @@ void aero::lift_force_wind_z(double q_bar, double alpha_beta_airspeed[], double 
 void aero::side_force_wind_y(double q_bar, double alpha_beta_airspeed[], double rot_body_radsec[], double& side_force_out) 
 {
 	
-	double params[27];
+	double params[28];
 	double beta, airspeed; 
 	
 	/*
@@ -258,6 +260,7 @@ void aero::side_force_wind_y(double q_bar, double alpha_beta_airspeed[], double 
 	params[24] = cy_drudder
 	params[25] = aspect ratio
 	params[26] = oswald efficiency
+	params[27] = cd_alpha
 	*/
 	
 	beta = alpha_beta_airspeed[1]; 
@@ -283,7 +286,7 @@ void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_b
 
 	// THIS VOID CONTAINS ALL THE CONTROL SURFACE DEFLECTION MOMENT CONTRIBUTIONS TOO
 	
-	double params[27];
+	double params[28];
 	double airspeed; 
 	double alpha; 
 	double beta; 
@@ -323,6 +326,7 @@ void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_b
 	params[24] = cy_drudder
 	params[25] = aspect ratio
 	params[26] = oswald efficiency
+	params[27] = cd_alpha
 	*/
 	
 	// Call Vehicle Definitions 
@@ -493,14 +497,15 @@ C_bar, mean chord = 1.493 m
 	params[16] = -0.053; // cn_daileron 
 	params[17] = -0.0657; // cn_drudder
 	params[18] =  0.030; // cd
-	params[19] =  0.31; // cl 
-	params[20] =  5.000; // cl_alpha 
+	params[19] =  0.30; // cl 
+	params[20] =  5.143; // cl_alpha 
 	params[21] =  3.9E+00; // cl_q 
 	params[22] = -4.627E-02; // cy_p
 	params[23] = -2.697E-01; // cy_beta
 	params[24] =  0.187; // cy_drudder
 	params[25] =  7.32; // aspect ratio
 	params[26] =  0.8; // oswald efficiency
+	params[27] =  0.13; // cd_alpha
 
 }
 
@@ -552,6 +557,7 @@ Inertia Tensor
 	params[24] = 0; // cy_drudder
 	params[25] = 0; // aspect ratio
 	params[26] = 0; // oswald efficiency
+	params[27] = 0; // cd_alpha
 	
 	
 
@@ -572,8 +578,16 @@ Inertia Tensor
    
 */
 
+// Alpha Dot - For Future Integration
+void aero::alpha_dot(double alpha_prev, double alpha_current, double dt, double& alpha_dot)
+{ 
+
+	alpha_dot = alpha_current-alpha_prev/dt;
+
+} 
+
 // Final Function - Aero Driver 
-void aero::aero_driver(double position[], double time, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[]) 
+void aero::aero_driver(double position[], double alpha_prev, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[]) 
 { 
 	// Internal Variables - 
 	double static_pressure; 
@@ -583,7 +597,7 @@ void aero::aero_driver(double position[], double time, double velocity_body[], d
 	double forces_in_wind[3];
 	double drag_out, lift_out, side_force_out; 
 	double altitude;
-	double v_x, v_y, v_z; 
+	double v_x, v_y, v_z;  
 	
 	altitude = position[2]; 
 
@@ -619,7 +633,7 @@ void aero::aero_driver(double position[], double time, double velocity_body[], d
 	aero::lift_force_wind_z(q, alpha_beta_airspeed, rot_body_radsec, lift_out);
 	
 	// Step 5: calculate drag component - NEGATIVE along WIND x axis
-	aero::drag_force_wind_x(q, drag_out); 
+	aero::drag_force_wind_x(q, alpha_beta_airspeed, drag_out); 
 	
 	// Step 6: Side Force - NEGATIVE Along WIND y Axis
 	aero::side_force_wind_y(q, alpha_beta_airspeed, rot_body_radsec, side_force_out);
@@ -636,7 +650,7 @@ void aero::aero_driver(double position[], double time, double velocity_body[], d
 	//                 BODY FRAME                   // 
 	//////////////////////////////////////////////////
 	
-	aero_force_body[0] += 1200; // Simulate Cruise Throttle Setting + In Body X Direction
+	aero_force_body[0] += 1190; // Simulate Cruise Throttle Setting + In Body X Direction
 	
 	// Next Up, add propulsion and moments too
 	aero::moments_body(alpha_beta_airspeed, q, rot_body_radsec, aero_moments_body); 
