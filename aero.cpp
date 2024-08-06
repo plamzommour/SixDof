@@ -587,7 +587,7 @@ void aero::alpha_dot(double alpha_prev, double alpha_current, double dt, double&
 } 
 
 // Final Function - Aero Driver 
-void aero::aero_driver(double position[], double alpha_prev, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[]) 
+void aero::aero_driver(double position[], double time, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[]) 
 { 
 	// Internal Variables - 
 	double static_pressure; 
