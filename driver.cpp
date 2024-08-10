@@ -66,21 +66,25 @@ int main()
         double eom_prev[6]; 
         double vel_NED_ms[n]; 
         double position_NED_m[n]; 
+        double linear_accels_ms2_body[n]; 
+        double linear_accels_ms2_NED[n]; 
 	double quaternion[4]; 
 	double quat_dot[4]; 
 	double dcm_i2b[3][3];
         double dt; 
         double time; 
         double t_end;
+        double nz_ned_g; 
         double alpha_beta_airspeed[n]; // Aero Params Vector
+        double bank_required;
 	
 	// Velocities - Cruise Speed of Cessna 172 ~ 110 knots
-	vel_body_ms[0] = 61; // X Velocity in M/S
+	vel_body_ms[0] = 56; // X Velocity in M/S
 	vel_body_ms[1] = 0.0; // Y Velocity in M/S
-	vel_body_ms[2] = -1; // Z Velocity in M/S
+	vel_body_ms[2] = 0.0; // Z Velocity in M/S
 	
 	// Forces - Zero for Now
-	force_body_n[0] = 1200; 
+	force_body_n[0] = 2000; 
 	force_body_n[1] = 0.00000; 
 	force_body_n[2] = 0.00000; 
 	
@@ -90,8 +94,8 @@ int main()
 	rot_body_radsec[2] = 0.0000; 
 	
 	// Euler Angles - Phi, Theta and Psi in NED - 3 - 2 - 1 Rotation Order
-	eulers_rad[0] = 25 * (M_PI/180); // Good
-	eulers_rad[1] = -1 * (M_PI/180); // Good
+	eulers_rad[0] = 0 * (M_PI/180); // Good
+	eulers_rad[1] = 0 * (M_PI/180); // Good
 	eulers_rad[2] = 0 * (M_PI/180); //Good 
 	
 	// Initialize Quaternion 
@@ -134,6 +138,9 @@ int main()
 	// Set end time
 	t_end = 1000;  
 	
+	// Initialize Accelerations for Autopilot - 1 g
+	nz_ned_g = 1; 
+	
 	// Set EOM_Prev to Zeros for initial values
 	for(int i=0; i<6; i++)
 	{
@@ -141,8 +148,8 @@ int main()
 		
 	}
 	
-	eom_prev[0] = 61; // X Body Velocity Initial
-	eom_prev[2] = -1; 
+	eom_prev[0] = 56; // X Body Velocity Initial
+	eom_prev[2] = 0; 
 	
 	// Open file
 	std::ofstream file;
@@ -152,7 +159,7 @@ int main()
 	std::cout<< "Please See MyData.txt for Output \n" << std::endl; 
 	
 	// Print Data File header 
-	file << "Time,Position X_NED,Position Y_NED,Position Z_NED,Phi,Theta,Psi,U_Body,V_Body,W_Body,Alpha,Beta,Airspeed,VelNEDX,VelNEDY,VelNEDZ,Drag,ZForce" <<  std::endl; 
+	file << "Time,Position X_NED,Position Y_NED,Position Z_NED,Phi,Theta,Psi,U_Body,V_Body,W_Body,Alpha,Beta,Airspeed,VelNEDX,VelNEDY,VelNEDZ,Drag,ZForce,Bank_Cmd" <<  std::endl; 
 	
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +175,7 @@ int main()
 	{ 
 	
 	// AERO FORCES AND MOMENTS
-	aero::aero_driver(position_NED_m, time, vel_body_ms, rot_body_radsec, alpha_beta_airspeed, force_body_n, momen_body_nm);
+	aero::aero_driver(position_NED_m, eulers_rad, nz_ned_g, dt, time, vel_body_ms, rot_body_radsec, alpha_beta_airspeed, force_body_n, momen_body_nm, bank_required);
 	
 	// Call Equations of Motion for ONE CYCLE
 	eqmot::equations_of_motion(vel_body_ms, force_body_n, rot_body_radsec, momen_body_nm, grav_bod_mss, mass_kg, inertia, eom_output_unint); 
@@ -204,9 +211,18 @@ int main()
 		// Rotational Velocity - Body
 		rot_body_radsec[i] = eom_prev[i+3]; 
 		
+		// Use this Loop to Reassign Linear Accels Too 
+		linear_accels_ms2_body[i] = eom_output_unint[i]; 
+		
 	}
 	
 	////// Rotate EoM output from Body Frame to Inertial Frame by using Quaternions
+	
+	// Rotate Body Accelerations to Inertial Accelerations in NED
+	quat::rotate_B2I(linear_accels_ms2_body, dcm_i2b, linear_accels_ms2_NED); 
+	
+	// Reassign 3rd Value of Acceleration to Nz and convert to G; 
+	nz_ned_g = linear_accels_ms2_NED[2] / 9.81; 
 	
 	// Use Quaternions for Translational Velocities - Now Vx Vy and Vz - Function takes in dcm_i2b and transposes it
 	quat::rotate_B2I(vel_body_ms, dcm_i2b, vel_NED_ms);
@@ -238,7 +254,7 @@ int main()
 	file << time << ","<< position_NED_m[0] << ","<< position_NED_m[1] << ","<< position_NED_m[2]<< "," << eulers_rad[0] << ","<< eulers_rad[1] << ","<< eulers_rad[2]
 		<< "," << vel_body_ms[0] << "," << vel_body_ms[1] << "," << vel_body_ms[2] << "," << alpha_beta_airspeed[0] << "," << alpha_beta_airspeed[1] << "," << 
 		alpha_beta_airspeed[2] << "," << vel_NED_ms[0] << "," << vel_NED_ms[1] << "," << vel_NED_ms[2] << "," << force_body_n[0] << "," << 
-		force_body_n[2] + grav_bod_mss[2] << std::endl; 
+		force_body_n[2] + grav_bod_mss[2] << "," << bank_required << std::endl; 
 		
 	////// Check to see if you hit the ground or not 
 	

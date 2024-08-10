@@ -18,7 +18,6 @@ plot(a.data(:,1), a.data(:,6)*(180/pi), 'LineWidth', 2)
 title("Theta - Pitch - Degrees")
 grid on
 grid minor
-ylim([-90 90])
 subplot(2,3,3)
 plot(a.data(:,1), a.data(:,7)*(180/pi), 'LineWidth', 2)
 title("Psi - Yaw - Degrees")
@@ -66,7 +65,7 @@ plot(a.data(:,1), a.data(:,11) * (180/pi), 'LineWidth', 2)
 title("Alpha - Deg")
 grid on
 grid minor
-ylim([-90 90])
+##ylim([-90 90])
 
 % NED Velocity in Meters/Sec
 figure()
@@ -109,3 +108,10 @@ ylabel('Downtrack - X - Meters NED')
 xlabel('Crosstrack - Y - Meters NED')
 view(2)
 axis equal
+
+% Bank Command
+figure()
+plot(a.data(:,1), a.data(:,19).*180/pi, 'LineWidth', 2)
+title("Bank Command - Degrees")
+grid on
+grid minor

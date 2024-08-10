@@ -16,11 +16,15 @@ Propulsion will also be included here.
 #include "aero.h" 
 #include "matrix_operations.h" 
 #include "atmosphere.h"
+#include "autopilot.h"
+#include "./guidance.h"
 #include <bits/stdc++.h> 
 
 using namespace ARO; 
 using namespace N; 
 using namespace AT; 
+using namespace AP; 
+using namespace GD; 
 
 // Function 2 - Rotate from Body Frame to Stability Frame via Alpha 
 void aero::rotate_B2S(double vector_in[], double alpha_beta_airspeed[], double vector_out[])
@@ -281,7 +285,7 @@ void aero::side_force_wind_y(double q_bar, double alpha_beta_airspeed[], double 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function 9 - Moment Stackup - q * s * l(control force lever arm) * moment coefficients
-void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_body_radsec[], double moments_out_LMN_body[])
+void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_body_radsec[], double delevator, double drudder, double daileron, double moments_out_LMN_body[])
 {
 
 	// THIS VOID CONTAINS ALL THE CONTROL SURFACE DEFLECTION MOMENT CONTRIBUTIONS TOO
@@ -294,9 +298,6 @@ void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_b
 	double cl_p, cl_r, cm_q, cn_p, cn_r;  
 	double cl_beta, cm, cm_alpha, cn_beta; 
 	double cl_daileron, cl_drudder, cm_delevator, cn_daileron, cn_drudder;
-	double daileron = 0 * (M_PI/180);  
-	double drudder  = 0 * (M_PI/180); 
-	double delevator = 0 * (M_PI/180); 
 	
 	/*
 	params[0] = mass
@@ -497,7 +498,7 @@ C_bar, mean chord = 1.493 m
 	params[16] = -0.053; // cn_daileron 
 	params[17] = -0.0657; // cn_drudder
 	params[18] =  0.030; // cd
-	params[19] =  0.30; // cl 
+	params[19] =  0.31; // cl 
 	params[20] =  5.143; // cl_alpha 
 	params[21] =  3.9E+00; // cl_q 
 	params[22] = -4.627E-02; // cy_p
@@ -587,7 +588,7 @@ void aero::alpha_dot(double alpha_prev, double alpha_current, double dt, double&
 } 
 
 // Final Function - Aero Driver 
-void aero::aero_driver(double position[], double time, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[]) 
+void aero::aero_driver(double position[], double eulers[], double nz_NED, double dt, double time, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[], double &bank_required) 
 { 
 	// Internal Variables - 
 	double static_pressure; 
@@ -597,7 +598,16 @@ void aero::aero_driver(double position[], double time, double velocity_body[], d
 	double forces_in_wind[3];
 	double drag_out, lift_out, side_force_out; 
 	double altitude;
+	double guidance_in[3]; 
+	double dynamics_in[3]; 
+	double lat_guidance_in[3]; 
+	double lat_dynamics_in[3];
+	double int_path[3]; 
+	double int_path_lat[2]; 
+	double del_elevator, del_ail, del_rud; 
 	double v_x, v_y, v_z;  
+	double throttle; 
+	//double bank_required; 
 	
 	altitude = position[2]; 
 
@@ -650,9 +660,37 @@ void aero::aero_driver(double position[], double time, double velocity_body[], d
 	//                 BODY FRAME                   // 
 	//////////////////////////////////////////////////
 	
-	aero_force_body[0] += 1190; // Simulate Cruise Throttle Setting + In Body X Direction
+	
+	//////////////////////////////////////////////////
+	//               GNC ALGORITHMS                // 
+	//////////////////////////////////////////////////
+	
+	// Package Inputs for Vertical -- To Come - Guidance 
+	guidance_in[0] = 0.0; //(M_PI/16) * sin((M_PI/100) * time); // Theta Command - sine wave of 11.25 deg at a 200 second period - Simple Guidance Algorithm
+	guidance_in[1] = 0; // Pitch Rate Command - Not Integrated in AP
+	guidance_in[2] = -2000; // Altitude
+	dynamics_in[0] = eulers[1]; // Pitch from EoM
+	dynamics_in[1] = rot_body_radsec[1]; // q rate from EoM
+	dynamics_in[2] = position[2]; // vertical rate;
+	
+	// Call Autopilots - Vertical,  Throttle
+	autopilot::vertical_channel(guidance_in, dynamics_in, int_path, dt, del_elevator);
+	autopilot::throttle_channel(guidance_in, dynamics_in, int_path, dt, throttle);
+	aero_force_body[0] += 2000 * throttle; // Simulate Cruise Throttle Setting + In Body X Direction
+	
+	// Call Lateral Guidance Algorithm
+	guidance::waypoint_guidance(position, eulers, alpha_beta_airspeed, bank_required); 
+	lat_guidance_in[0] = bank_required; //(M_PI/16) * sin((M_PI/100) * time); 
+	lat_guidance_in[1] = 0; // Q Command - Unused for now 
+	lat_dynamics_in[0] = eulers[0]; // Phi
+	lat_dynamics_in[1] = rot_body_radsec[0]; // P about X
+	
+	// Call Lateral Autopilot 
+	autopilot::lateral_channel(lat_guidance_in, lat_dynamics_in, int_path_lat, dt, del_rud, del_ail); 
+	
+	del_rud = 0; 
 	
 	// Next Up, add propulsion and moments too
-	aero::moments_body(alpha_beta_airspeed, q, rot_body_radsec, aero_moments_body); 
+	aero::moments_body(alpha_beta_airspeed, q, rot_body_radsec, del_elevator, del_rud, del_ail, aero_moments_body); 
 	
 }
