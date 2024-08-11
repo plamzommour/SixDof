@@ -109,9 +109,28 @@ xlabel('Crosstrack - Y - Meters NED')
 view(2)
 axis equal
 
-% Bank Command
+% Bank Command and Heading Error
 figure()
+subplot(2,1,1)
 plot(a.data(:,1), a.data(:,19).*180/pi, 'LineWidth', 2)
 title("Bank Command - Degrees")
+grid on
+grid minor
+subplot(2,1,2)
+plot(a.data(:,1), a.data(:,20), 'LineWidth', 2)
+
+##% Calculate Actual Heading Error
+##actual_heading = a.data(:,7); % psi
+##guidepoint = [10000, 20000];
+##y_pos = a.data(:,3);
+##x_pos = a.data(:,2);
+##del_y = guidepoint(2)-y_pos;
+##del_x = guidepoint(1)-x_pos;
+##bearing_2_gp = atan(del_x./del_y);
+##
+##heading_err = bearing_2_gp-actual_heading;
+##hold on
+##plot(a.data(:,1), heading_err * (180/pi))
+title("Distance to Waypoint")
 grid on
 grid minor

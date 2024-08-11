@@ -588,7 +588,7 @@ void aero::alpha_dot(double alpha_prev, double alpha_current, double dt, double&
 } 
 
 // Final Function - Aero Driver 
-void aero::aero_driver(double position[], double eulers[], double nz_NED, double dt, double time, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[], double &bank_required) 
+void aero::aero_driver(double position[], double eulers[], double nz_NED, double dt, double time, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[], double &bank_required, double &heading_err) 
 { 
 	// Internal Variables - 
 	double static_pressure; 
@@ -679,7 +679,7 @@ void aero::aero_driver(double position[], double eulers[], double nz_NED, double
 	aero_force_body[0] += 2000 * throttle; // Simulate Cruise Throttle Setting + In Body X Direction
 	
 	// Call Lateral Guidance Algorithm
-	guidance::waypoint_guidance(position, eulers, alpha_beta_airspeed, bank_required); 
+	guidance::waypoint_guidance(position, eulers, alpha_beta_airspeed, bank_required, heading_err); 
 	lat_guidance_in[0] = bank_required; //(M_PI/16) * sin((M_PI/100) * time); 
 	lat_guidance_in[1] = 0; // Q Command - Unused for now 
 	lat_dynamics_in[0] = eulers[0]; // Phi

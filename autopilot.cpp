@@ -40,8 +40,8 @@ void autopilot::vertical_channel(double guidance_in[], double dynamics_in[], dou
 	double errors[3];  
 	double prop_path[3]; 
 	double pi_out[3]; 
-	const double k_p = 1.0; 
-	const double k_i = 0.1;
+	const double k_p = 20.0; 
+	const double k_i = 1.0;
 	const double el_scale = 0.5; 
 	const double el_def_lim = 25*(M_PI/180); // 25 degree deflection limit 
 	
@@ -102,8 +102,8 @@ void autopilot::lateral_channel(double guidance_in[], double dynamics_in[], doub
 	const double k_i = 1.0; 
 	const double rud_scale = 0.00; // Rudder is off for now 
 	const double rud_def_lim = 25*(M_PI/180); // 25 degree deflection limit 
-	const double ail_scale = 0.05; 
-	const double ail_def_lim = 10*(M_PI/180); // 25 degree deflection limit 
+	const double ail_scale = 0.40; 
+	const double ail_def_lim = 25*(M_PI/180); // 25 degree deflection limit 
 	
 	// Assume states coming in are theta, pitch rate and vertical acceleration, in the following way: 
 	// [theta, q, nz] 
@@ -175,7 +175,7 @@ void autopilot::throttle_channel(double guidance_in[], double dynamics_in[], dou
 	double errors[3];  
 	double prop_path[3]; 
 	double pi_out[3]; 
-	const double k_p = 1.0; 
+	const double k_p = 15; 
 	const double k_i = 0.1;
 	const double throttle_scale = 0.01; 
 	const double throttle_lower = 0.1; 

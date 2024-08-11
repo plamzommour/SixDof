@@ -16,7 +16,7 @@ namespace ARO
 	static void test_vehicle_brick(double[]); 
 	static void test_vehicle_cessna(double[]); 
 	static void alpha_dot(double, double, double, double&);
-	static void aero_driver(double[], double[], double, double, double, double[], double[], double[], double[], double[], double&);
+	static void aero_driver(double[], double[], double, double, double, double[], double[], double[], double[], double[], double&, double&);
 	};
 	
 }

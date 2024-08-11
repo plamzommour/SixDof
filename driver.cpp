@@ -76,7 +76,7 @@ int main()
         double t_end;
         double nz_ned_g; 
         double alpha_beta_airspeed[n]; // Aero Params Vector
-        double bank_required;
+        double bank_required, heading_err;
 	
 	// Velocities - Cruise Speed of Cessna 172 ~ 110 knots
 	vel_body_ms[0] = 56; // X Velocity in M/S
@@ -136,7 +136,7 @@ int main()
 	time = 0; 
 	
 	// Set end time
-	t_end = 1000;  
+	t_end = 3000;  
 	
 	// Initialize Accelerations for Autopilot - 1 g
 	nz_ned_g = 1; 
@@ -159,7 +159,7 @@ int main()
 	std::cout<< "Please See MyData.txt for Output \n" << std::endl; 
 	
 	// Print Data File header 
-	file << "Time,Position X_NED,Position Y_NED,Position Z_NED,Phi,Theta,Psi,U_Body,V_Body,W_Body,Alpha,Beta,Airspeed,VelNEDX,VelNEDY,VelNEDZ,Drag,ZForce,Bank_Cmd" <<  std::endl; 
+	file << "Time,Position X_NED,Position Y_NED,Position Z_NED,Phi,Theta,Psi,U_Body,V_Body,W_Body,Alpha,Beta,Airspeed,VelNEDX,VelNEDY,VelNEDZ,Drag,ZForce,Bank_Cmd,Heading_err" <<  std::endl; 
 	
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +175,8 @@ int main()
 	{ 
 	
 	// AERO FORCES AND MOMENTS
-	aero::aero_driver(position_NED_m, eulers_rad, nz_ned_g, dt, time, vel_body_ms, rot_body_radsec, alpha_beta_airspeed, force_body_n, momen_body_nm, bank_required);
+	aero::aero_driver(position_NED_m, eulers_rad, nz_ned_g, dt, time, vel_body_ms, rot_body_radsec, alpha_beta_airspeed, force_body_n, momen_body_nm, 
+	bank_required, heading_err);
 	
 	// Call Equations of Motion for ONE CYCLE
 	eqmot::equations_of_motion(vel_body_ms, force_body_n, rot_body_radsec, momen_body_nm, grav_bod_mss, mass_kg, inertia, eom_output_unint); 
@@ -254,7 +255,7 @@ int main()
 	file << time << ","<< position_NED_m[0] << ","<< position_NED_m[1] << ","<< position_NED_m[2]<< "," << eulers_rad[0] << ","<< eulers_rad[1] << ","<< eulers_rad[2]
 		<< "," << vel_body_ms[0] << "," << vel_body_ms[1] << "," << vel_body_ms[2] << "," << alpha_beta_airspeed[0] << "," << alpha_beta_airspeed[1] << "," << 
 		alpha_beta_airspeed[2] << "," << vel_NED_ms[0] << "," << vel_NED_ms[1] << "," << vel_NED_ms[2] << "," << force_body_n[0] << "," << 
-		force_body_n[2] + grav_bod_mss[2] << "," << bank_required << std::endl; 
+		force_body_n[2] + grav_bod_mss[2] << "," << bank_required << "," << heading_err << std::endl; 
 		
 	////// Check to see if you hit the ground or not 
 	
