@@ -136,7 +136,7 @@ int main()
 	time = 0; 
 	
 	// Set end time
-	t_end = 3000;  
+	t_end = 4500;  
 	
 	// Initialize Accelerations for Autopilot - 1 g
 	nz_ned_g = 1; 
