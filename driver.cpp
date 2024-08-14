@@ -1,4 +1,4 @@
-// This Script Runs the Equations of Motion for Simulating an Airplane.
+// This Script Runs the Equations of Motion, Aerodynamics and GNC Algorithms for Simulating A Controlled Airplane.
 /* 
 
 All kinematics are defined by quaternions, propagated through time. 
@@ -136,7 +136,7 @@ int main()
 	time = 0; 
 	
 	// Set end time
-	t_end = 4500;  
+	t_end = 1300;  
 	
 	// Initialize Accelerations for Autopilot - 1 g
 	nz_ned_g = 1; 

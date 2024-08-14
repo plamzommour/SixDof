@@ -12,20 +12,19 @@ using namespace GD; // Guidance
 void guidance::waypoint_guidance(double position[], double eulers[], double alpha_beta_airspeed[], double &bank_required, double& heading_err) 
 { 
 	
-	double guidepoints[9][2] ={{0,0}, {10000, -20000}, {30000, -20000}, {30000, 20000}, {60000, 20000}, {60000, -20000}, {50000, -30000}, {10000, -40000}, {0,0}}; // Downtrack, Crosstrack
-	double x_err, y_err, x_pos_err, y_pos_err, turn_radius, ay_req, dist_2_waypoint; 
+	double guidepoints[8][2] = {{0,0}, {7000, -10000}, {15000, -10000}, {22000, 0}, {15000, 10000}, {7000, 10000}, {0,0}, {-10000,0}}; 
+	double x_err, y_err, x_pos_err, y_pos_err, turn_radius, ay_req, dist_2_waypoint, x_track_err; 
 	double rot_mat_z[3][3]; 
 	double guide_points1[3]; 
 	double pos_rot[3]; 
 	double pos[3]; 
 	double guide_points1_rot[3]; 
-	double x_track_err; 
 	static double t_req, heading_2_gp, abs_heading_err, yaw_prev; 
 	static int correction_has_been_applied = 0; 
 	static int waypoint_number = 1; 
 	static int calc_heading = 1; 
 	static int waypoint_has_been_cycled = 0; 
-	const double turn_rate = 4 * (M_PI/180); // Standard 5 deg per second turn rate for small aircraft
+	const double turn_rate = 4 * (M_PI/180); // Standard 4 deg per second turn rate ok for small aircraft
 	int count; 
 	
 	// First Step - Establish Positional Error WRT to guidepoint -- We can get away with not using fancy formulas cause we are in flat-earth coordinates
@@ -40,7 +39,7 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	dist_2_waypoint = sqrt(x_pos_err*x_pos_err + y_pos_err*y_pos_err); 
 	
 	// Cycle Waypoints 
-	// Cycle Waypoint if threshold is met -- Move this logic to external function if able
+	// Cycle Waypoint if threshold is met
 	if (dist_2_waypoint < 2000 && waypoint_has_been_cycled == 0)
 	{ 
 	waypoint_number += 1; // Cycle Waypoint
@@ -60,22 +59,23 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	calc_heading = 0; 
 	} 
 	
-	// To Do - Add Sign Change Protection to Yaw
-	heading_err = heading_2_gp - eulers[2]; // heading_error 
+	// Calculate Heading Error
+	heading_err = heading_2_gp - eulers[2]; // heading_error
 	
-	// Add protection for negative heading_error -- Bank Command is Re-Negated Later 
+	// Protection for Wrapping 
+	if (heading_err > M_PI) 
+	{ 
+	heading_err -= 2*M_PI; 
+	} 
+	else if (heading_err < -M_PI) 
+	{ 
+	heading_err += 2*M_PI; 
+	} 
+	
+	// Absolute Value for Time Required Calculation
 	abs_heading_err = std::abs(heading_err); 
 	
-	// Add protection for small angles of heading error 
-	if (abs_heading_err < 0.00000000000000000000000000001)
-	{
-	
-		abs_heading_err = 0.00000000000000000000000000001; 
-		
-	}
-	
 	// Second Step - Compute Turn Radius Needed 
-	
 	if (count == 1)
 	{
 		t_req = abs_heading_err/turn_rate; // ONLY DO THIS ONCE, or you will not get closure on bearing  
@@ -89,10 +89,8 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	// Fourth Step - Calculate Bank Angle Required -- Compare to Gravity 
 	bank_required = atan2(ay_req,9.81); // Positive if Heading_Err is Positive - Right Turn 
 	
-	// Secondly, add Second Condition for Crosstrack Error
-	// Need Rotation Matrix to get things into a mathematically easy form 
-	
-	// rot_mat_z = [cosd(bearing),sind(bearing), 0;-sind(bearing),cosd(bearing), 0; 0, 0, 1]
+	// Secondly, add Second Bank Condition for Crosstrack Error
+	// Need Rotation Matrix to get things into a mathematically easy form - Vertical
 	rot_mat_z[0][0] = cos(heading_2_gp); 
 	rot_mat_z[0][1] = sin(heading_2_gp); 
 	rot_mat_z[0][2] = 0; 
@@ -103,7 +101,7 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	rot_mat_z[2][1] = 0; 
 	rot_mat_z[2][2] = 1; 
 	
-	// Also Need to Get the Current Guidpoint Path in 3-D - Assume Z is Zero
+	// Also Need to Get the Current Guidepoint Path in 3-D - Assume Z is Zero
 	guide_points1[0] = guidepoints[waypoint_number][0]; // Further Waypoint X
 	guide_points1[1] = guidepoints[waypoint_number][1]; // Further Waypoint Y 
 	guide_points1[2] = 0; // No Z
@@ -116,14 +114,13 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	vector_math::matrix_2_vect(rot_mat_z, guide_points1, guide_points1_rot); // Rotate Guidepoint, only need crosstrack value 
 	vector_math::matrix_2_vect(rot_mat_z, pos, pos_rot);
 	
-	// Forumulate Crosstrack Error 
-	x_track_err = pos_rot[1] - guide_points1_rot[1];
+	// Forulate Crosstrack Error 
+	x_track_err = pos_rot[1] - guide_points1_rot[1]; 
 	
-	// Add Crosstrack Error to Bank Command with a gain after getting a little bit away
+	// Add Crosstrack Error-Based Bank Command to Bearing-Based Bank Command 
 	bank_required += (x_track_err * (-0.015 * M_PI/180)); 
 	
-	// Apply Limiting Cause Command is going to +-90 deg 
-	
+	// Apply Limiting to Make it a Reasonable Bank
 	if ( (std::abs(bank_required) > (35 * (M_PI/180) ) ) && (bank_required < 0) )
 	{
 	
