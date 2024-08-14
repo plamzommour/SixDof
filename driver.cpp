@@ -13,6 +13,8 @@ Simulation stops if you hit the ground
 
 Simulation runs in metric units
 
+GNC Algorithms are called by aero driver
+
 */ 
 
 #include <bits/stdc++.h> 
