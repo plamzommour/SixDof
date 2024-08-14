@@ -1,4 +1,5 @@
 // This is the forward euler routine for one dimension
+// Runge Kutta is also included but I have not gotten it to work. 
 
 #include <bits/stdc++.h> // includes a lot of the standard libraries 
 #include "integrate.h"

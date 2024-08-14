@@ -174,7 +174,7 @@ int main()
 	while (time < t_end)
 	{ 
 	
-	// AERO FORCES AND MOMENTS
+	// AERO FORCES AND MOMENTS -- Also Contains Guidance and Control Algorithms
 	aero::aero_driver(position_NED_m, eulers_rad, nz_ned_g, dt, time, vel_body_ms, rot_body_radsec, alpha_beta_airspeed, force_body_n, momen_body_nm, 
 	bank_required, heading_err);
 	

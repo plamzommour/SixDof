@@ -4,13 +4,11 @@
 
 // Please see the reference : en.wikipedia.org/wiki/Conversion_between_quaternions_euler_angles
 
-// Last Section, on Vector Rotation - Computed by Normal Method Q*V*Q_Conj
-
 /* 
 
 Define quaternion, then turn into DCM.
 
-TO-DO, see if q*v*q_conj can work too. 
+TO-DO, see if q*v*q_INV can work too. 
 
 Vector Math Functions Needed: 
 

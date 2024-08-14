@@ -1,13 +1,24 @@
 // This Script Contains Various Guidance Algorithms for the GNC Portion of the Sim
 
-// Waypoint Guidance - Takes in Position and a Waypoint and outputs a bank command to send to the autopilot 
-
 #include <bits/stdc++.h> // includes a lot of the standard libraries 
 #include "./guidance.h"
 #include "./matrix_operations.h"
 
 using namespace N; // Matrix Operations
 using namespace GD; // Guidance 
+
+/* 
+Waypoint guidance: This algorithm takes in the position, euler angles and airspeed of the vehicle and outputs a bank angle. 
+Algorithm calculates the bearing between two waypoints in NED space formulated in [downrange, crossrange] form. 
+Algorithm calculates the bank angle needed to get the vehicle to that bearing via lateral acceleration calculated from a heading error
+and then steers out any angular error to the intended bearing. 
+
+Crosstrack distance is also considered. 
+Crosstrack error is calculated by rotating the current position and waypoint to be relative to vertical and using the crosstrack component to calculate the error. 
+
+Both the bearing-based bank command and crosstrack-based bank command are added to one another.  
+Assumption is that if you are on the intended bearing and have no crosstrack error, you are on the exact path you need to be and errors will be ~0. 
+*/
 
 void guidance::waypoint_guidance(double position[], double eulers[], double alpha_beta_airspeed[], double &bank_required, double& heading_err) 
 { 
@@ -19,12 +30,10 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	double pos_rot[3]; 
 	double pos[3]; 
 	double guide_points1_rot[3]; 
-	static double t_req, heading_2_gp, abs_heading_err, yaw_prev; 
-	static int correction_has_been_applied = 0; 
+	static double heading_2_gp; 
 	static int waypoint_number = 1; 
 	static int calc_heading = 1; 
 	static int waypoint_has_been_cycled = 0; 
-	const double turn_rate = 4 * (M_PI/180); // Standard 4 deg per second turn rate ok for small aircraft
 	int count; 
 	
 	// First Step - Establish Positional Error WRT to guidepoint -- We can get away with not using fancy formulas cause we are in flat-earth coordinates
@@ -48,11 +57,10 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	if (dist_2_waypoint > 2000 && waypoint_has_been_cycled == 1)
 	{ 
 	waypoint_has_been_cycled = 0;
-	calc_heading = 1; 
-	correction_has_been_applied = 0;  
+	calc_heading = 1;  
 	}
 	
-	// Calculate Bearing to guidepoint from current position
+	// Calculate Bearing to new waypoint from previous waypoint
 	if (calc_heading == 1)
 	{
 	heading_2_gp = atan2(y_err,x_err); // heading to guide point 
@@ -72,16 +80,7 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	heading_err += 2*M_PI; 
 	} 
 	
-	// Absolute Value for Time Required Calculation
-	abs_heading_err = std::abs(heading_err); 
-	
-	// Second Step - Compute Turn Radius Needed 
-	if (count == 1)
-	{
-		t_req = abs_heading_err/turn_rate; // ONLY DO THIS ONCE, or you will not get closure on bearing  
-	}
-	
-	turn_radius = ( alpha_beta_airspeed[2] * t_req ) / heading_err; // Turn Radius 
+	turn_radius = ( alpha_beta_airspeed[2] * 13) / heading_err; // Turn Radius --- 13 was added as a time-required piece. Can be tuned. 
 	
 	// Third Step - Compute Required Lateral Acceleration
 	ay_req = (alpha_beta_airspeed[2]*alpha_beta_airspeed[2]) / turn_radius; 

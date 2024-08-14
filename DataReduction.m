@@ -19,7 +19,7 @@ title("Theta - Pitch - Degrees")
 grid on
 grid minor
 subplot(2,3,3)
-plot(a.data(:,1), a.data(:,7)*(180/pi), 'LineWidth', 2)
+plot(a.data(:,1), (a.data(:,7)*(180/pi)), 'LineWidth', 2)
 title("Psi - Yaw - Degrees")
 grid on
 grid minor

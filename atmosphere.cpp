@@ -4,7 +4,7 @@ US Standard Atmosphere 1976 Standard for Temperature and Pressure.
 
 Taken from Wikipedia.  
 
-Script takes in Altitude and Velocity in WIND AXES 
+Script takes in Altitude and Velocity in Inertial Axes
 and outputs dynamic pressure, static pressure and temperature
 
 */ 
