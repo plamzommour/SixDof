@@ -114,10 +114,11 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	vector_math::matrix_2_vect(rot_mat_z, guide_points1, guide_points1_rot); // Rotate Guidepoint, only need crosstrack value 
 	vector_math::matrix_2_vect(rot_mat_z, pos, pos_rot);
 	
-	// Forulate Crosstrack Error 
+	// Formulate Crosstrack Error 
 	x_track_err = pos_rot[1] - guide_points1_rot[1]; 
 	
 	// Add Crosstrack Error-Based Bank Command to Bearing-Based Bank Command 
+	// Crosstrack Based Bank Command is generated using a simple proportional controller
 	bank_required += (x_track_err * (-0.015 * M_PI/180)); 
 	
 	// Apply Limiting to Make it a Reasonable Bank

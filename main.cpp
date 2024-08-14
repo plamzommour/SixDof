@@ -1,4 +1,6 @@
-// This is the Main Script 
+// This is the Main Validation Script
+
+// THIS DOES NOT RUN THE EOM 
 
 #include "matrix_operations.h"
 #include "quaternion_operations.h"
