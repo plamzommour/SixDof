@@ -1,0 +1,61 @@
+// Test Script for All Kinematics 
+
+#include <cmath> 
+#include "./matrix.h"
+#include "./quaternion.h" 
+#include "./vector.h"
+
+int main () 
+{
+
+	double scalar = 3.0; 	
+	
+	// Initialize 2 Vectors 
+	Vector v1(2.0, 3.0, 4.0); 
+	Vector v2(5.0, 6.0, 7.0); 
+	
+	// Initialize 2 Quaternions
+	Quaternion q1 (1.0, 1.5, 2.0, 2.5); 
+	Quaternion q2 (3.0, 3.5, 4.0, 4.5); 
+	
+	// Quaternion Rotation 90 deg about X 
+	Quaternion x90 (cos(M_PI/4), sin(M_PI/4), 0, 0); 
+	Quaternion y85 (cos((85 * (M_PI/180))/2), 0, sin((85 * (M_PI/180))/2), 0); 
+	Quaternion z75 (cos((75 * (M_PI/180))/2), 0, 0, sin((75 * (M_PI/180))/2));
+	
+	// Initialize 1 Matrix 
+	double matrix_data[3][3] = {{0.5, 1.0, 1.5},{2.0, 2.5, 3.0}, {3.5, 4.0, 4.5}};
+	Matrix3x3 m1(matrix_data); 
+	
+	// Add Two Vectors 
+	Vector v1_plus_v2 = v1.add_vector(v2); 
+	
+	// Subtract Two Vectors 
+	Vector v1_minus_v2 = v1.subtract_vector(v2); 
+	
+	// Multiply a Vector by a Scalar
+	Vector v1_times_scalar = v1.scalar_mult(scalar); 
+	
+	// Cross Product 
+	Vector v1_cross_v2 = v1.cross(v2); 
+	
+	// Multiply 2 Quaternions 
+	Quaternion q1_times_q2 = q1.quat_mult(q2); 
+	
+	// Full Rotation Quaternion 
+	Quaternion rot_quat = x90.quat_mult(y85).quat_mult(z75); 
+	
+	// Normalize the Quaternion 
+	q1_times_q2.normalize(); 
+	
+	// Rotate the Vector Using the Quaternion 
+	Vector rot_v1 = x90.rotate(v1); 
+	
+	// Full Formula 
+	//  ( (v1 + v2) - v1 ) cross v2
+	Vector uvw_dot = (( v1 . add_vector (v2) ) . subtract_vector (v1) ) . add_vector ( v2 . cross (v1) ); 
+	
+	// Matrix - Vector Multiplication
+	Vector n_vect = m1.MatrixMult(v1); 
+	
+} 
