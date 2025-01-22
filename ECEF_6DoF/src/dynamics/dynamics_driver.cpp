@@ -54,25 +54,25 @@ void dynamics(comvar* s_data)
 		Matrix3x3::invert_matrix(s_data->inertia, inv_mat); 
 		Matrix3x3 tensor_inv(inv_mat); 
 	
-	// Calculate Gravity in Body Frame
+	// Calculate Gravity in Body Frame -- TODO
 	Vector gravity_ned; 
 	gravity_ned.x = 0; 
 	gravity_ned.y = 0; 
 	gravity_ned.z = 0; 
 	
-	// Earth Calculations 
+	// Earth Calculations -- TODO 
 	Vector rad_earth; 
 	rad_earth.x = 0; 
 	rad_earth.y = 0; 
 	rad_earth.z = 0; 
 	
-	// Rotation Speed Earth - Inertial 
+	// Rotation Speed Earth - Inertial -- TODO
 	Vector rot_speed_earth_inertial; 
 	rot_speed_earth_inertial.x = 0; 
 	rot_speed_earth_inertial.y = 0; 
 	rot_speed_earth_inertial.z = 0; 
 	
-	// Rotation Speed Earth - Body 
+	// Rotation Speed Earth - Body -- TODO
 	Vector rot_speed_earth_body; 
 	rot_speed_earth_body.x = 0; 
 	rot_speed_earth_body.y = 0; 

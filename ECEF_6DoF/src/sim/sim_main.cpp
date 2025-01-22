@@ -5,6 +5,7 @@
 #include "./sim_init.h"
 #include "../dynamics/dynamics_driver.h"
 #include "../kinematics/initialize_quaternions.h"
+#include "../kinematics/kinematics_driver.h"
 
 int main ()
 { 
@@ -35,6 +36,7 @@ int main ()
 	{ 
 	
 	// Calculate Aero and GNC for One Cycle 
+	
 
 	// Calculate EoM Diff EQ for One Cycle 
 	// This also runs the body-frame integration for rate and position. 
@@ -44,15 +46,14 @@ int main ()
 	// Run Kinematics Driver.  Kinematics Driver Figures Out All Orientations, 
 	// Performs the Quaternion Derivative, Calculates the LLA Position, Finds the New 
 	// LL2ECEF Quaternion and Extracts the Euler Angles
-
-	// Make Sure Data is ready for next Cycle 
+	kinematics(s_data); 
 
 	// Set Timer 
 	s_data->time = s_data->time + s_data->dt; 
 
-	// Run Next Cycle 
-
 	// Stop if you hit the ground, or stop after landing 
+	
+	// Add an Eval Stop Function
 	
 	} 
 	

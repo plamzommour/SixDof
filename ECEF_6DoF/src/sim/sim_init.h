@@ -147,6 +147,9 @@ void initialize_data(comvar* data)
 	// Attitude Kinematics //
 	
 	// Quaternion - Body Frame to Local Level
+	Quaternion q_ll_2_body (0, 0, 0, 0);
+	
+	// Quaternion - Local Level to Body Frame
 	Quaternion q_body_2_ll (0, 0, 0, 0);
 	
 	// Quaternion - Local Level to ECEF

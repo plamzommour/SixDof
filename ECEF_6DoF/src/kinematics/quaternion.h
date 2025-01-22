@@ -34,6 +34,6 @@ class Quaternion
 	Quaternion conjugate() const; 
 	
 	// Euler Angle Extraction
-	Vector Extract_Eulers(const Quaternion& q) const; 
+	Vector extract_eulers() const; 
 	
 }; 

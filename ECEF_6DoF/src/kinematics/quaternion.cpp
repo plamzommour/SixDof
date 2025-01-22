@@ -68,7 +68,7 @@ Quaternion Quaternion::q_dot(const Vector& v) const
 }
 
 // Function to Extract Euler Angles from Body Frame to Local Level Quaternion 
-Vector Quaternion::Extract_Eulers(const Quaternion& q) const
+Vector Quaternion::extract_eulers() const
 { 
 
 	double phi_atan2_term1; 
@@ -78,11 +78,11 @@ Vector Quaternion::Extract_Eulers(const Quaternion& q) const
 	double psi_atan2_term2; 
 
 	// Calculate Components of Formulas for Shorthand 
-	phi_atan2_term1 = 2 * (q.w*q.x + q.y*q.z); 
-	phi_atan2_term2 = (q.w*q.w + q.z*q.z - q.x*q.x - q.y*q.y); 
-	theta_asin_term = 2 * (q.w*q.y - q.x*q.z);
-	psi_atan2_term1 = 2 * (q.w*q.z + q.x*q.y); 
-	psi_atan2_term2 = (q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z); 	 
+	phi_atan2_term1 = 2 * (w*x + y*z); 
+	phi_atan2_term2 = (w*w + z*z - x*x - y*y); 
+	theta_asin_term = 2 * (w*y - x*z);
+	psi_atan2_term1 = 2 * (w*z + x*y); 
+	psi_atan2_term2 = (w*w + x*x - y*y - z*z); 	 
 	
 	// TODO - Add ArcSine Protection to Pitch Angle 
 	

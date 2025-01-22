@@ -138,11 +138,17 @@ struct comvar
 	
 	// Attitude Kinematics //
 	
-	// Quaternion - Body Frame to Local Level
+	// Quaternion - Local Level to Body Frame
+	Quaternion q_ll_2_body;
+	
+	// Quaternion - Body Frame to Local Level 
 	Quaternion q_body_2_ll;
 	
 	// Quaternion - Local Level to ECEF
 	Quaternion q_ll_2_ecef;
+	
+	// Quaternion - ECEF to Local Level
+	Quaternion q_ecef_2_ll;
 	
 	// Quaternion Derivative
 	Quaternion q_dot; 
