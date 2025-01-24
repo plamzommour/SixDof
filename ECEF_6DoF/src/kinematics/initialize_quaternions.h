@@ -16,9 +16,9 @@ void quaternion_init(comvar* s_data)
 	Quaternion q_ll_2_body_result; 
 	
 	// Local Level to ECEF
-	Quaternion q_rot1_ecef_2_ll (cos(s_data->longitude/2), 0, 0, sin(s_data->longitude/2)); // Z Axis About Longitude 
-	Quaternion q_rot2_ecef_2_ll (cos(s_data->latitude/2), 0, sin(s_data->latitude/2), 0); // Y Axis About Latitude 
-	Quaternion q_ecef_2_ll_result; 
+//	Quaternion q_rot1_ecef_2_ll (cos(s_data->wp_longitude/2), 0, 0, sin(s_data->wp_longitude/2)); // Z Axis About Longitude 
+//	Quaternion q_rot2_ecef_2_ll (cos(s_data->wp_latitude/2), 0, sin(s_data->wp_latitude/2), 0); // Y Axis About Latitude 
+//	Quaternion q_ecef_2_ll_result; 
 	
 	// Construct Rotation Quaternion and Normalize it - Local Level to Body Frame
 	// 3-2-1 Rotation Sequence 
@@ -29,10 +29,10 @@ void quaternion_init(comvar* s_data)
 	
 	// Construct Rotation Quaternion and Normalize it - ECEF to Local Level
 	// 3-2 Rotation Sequence 
-	q_ecef_2_ll_result = q_rot1_ecef_2_ll.quat_mult(q_rot2_ecef_2_ll); 
-	q_ecef_2_ll_result.normalize();
-	s_data->q_ecef_2_ll = q_ecef_2_ll_result; 
-	s_data->q_ll_2_ecef = q_ecef_2_ll_result.conjugate(); 
+//	q_ecef_2_ll_result = q_rot1_ecef_2_ll.quat_mult(q_rot2_ecef_2_ll); 
+//	q_ecef_2_ll_result.normalize();
+//	s_data->q_ecef_2_ll = q_ecef_2_ll_result; 
+//	s_data->q_ll_2_ecef = q_ecef_2_ll_result.conjugate(); 
 }
 	
 #endif 

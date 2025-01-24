@@ -123,8 +123,19 @@ struct comvar
 	// Navigation Information 
 	double latitude; // rad 
 	double longitude; // rad 
-	double altitude; // rad 
+	double altitude; // rad -- Ellipsoidal
 	
+	// Waypoint Information 
+	double wp_latitude; // rad 
+	double wp_longitude; // rad 
+	double wp_alt; // ft, ground at waypoint
+	int wp_num; 
+
+	// Geodesy Constants - WGS84
+	const double e = 0.08181919;
+	const double a = 6378137.00;
+	const double b = 6356752.00; 
+
 	// Mass Properties 
 	double mass; 
 	double inertia[3][3]; 

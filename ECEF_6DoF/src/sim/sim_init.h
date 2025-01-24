@@ -125,6 +125,12 @@ void initialize_data(comvar* data)
 	data->longitude = 0; // rad 
 	data->altitude = 0; // rad 
 	
+	// Waypoint Information 
+	data->wp_latitude = 0; // rad 
+	data->wp_longitude = 0; // rad 
+	data->wp_alt = 0; // Ft @ Wp Ground
+	data->wp_num = 0; 
+	
 	// Mass 
 	data-> mass = 0; 
 	data-> inertia[0][0] = 0;

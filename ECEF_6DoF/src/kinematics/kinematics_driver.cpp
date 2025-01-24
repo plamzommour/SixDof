@@ -19,6 +19,7 @@ Knowns and Things to Do:
 #include "./vector.h"
 #include "../dynamics/integrate.h"
 #include "./ll_kin.h"
+#include "./earth_kin.h"
 
 void kinematics(comvar* s_data)
 { 
@@ -27,6 +28,6 @@ void kinematics(comvar* s_data)
 	ll_kin(s_data); 
 	
 	// Find Earth Kinematics Results and Pack Away
-	
+	earth_kin(s_data); 
 	
 }
