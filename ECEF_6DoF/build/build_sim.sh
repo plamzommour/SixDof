@@ -4,7 +4,7 @@
 
 # Set Paths 
 SIM_DIR="../src"
-BUILD_DIR="."
+BUILD_DIR="../run"
 OUTPUT_BIN="run_ecef_sim"
 
 # Compiler 
