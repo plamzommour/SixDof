@@ -47,6 +47,8 @@ int main ()
 	// Performs the Quaternion Derivative, Calculates the LLA Position, Finds the New 
 	// LL2ECEF Quaternion and Extracts the Euler Angles
 	kinematics(s_data); 
+	
+	// TODO - Send output to csv
 
 	// Set Timer 
 	s_data->time = s_data->time + s_data->dt; 

@@ -14,7 +14,7 @@ class Quaternion
 	public: 
 	double w, x, y, z; 
 	
-	// Need a constructor for our quaternion
+	// Need a constructor for our quaternion, initialize to the below values otherwise
 	Quaternion(double _w = 1.0, double _x = 0.0, double _y = 0.0, double _z = 0.0)
 		: w(_w), x(_x), y(_y), z(_z) {}
 		

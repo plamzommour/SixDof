@@ -14,20 +14,17 @@ Propulsion will also be included here.
 */ 
 
 #include "aero.h" 
-#include "matrix_operations.h" 
-#include "atmosphere.h"
-#include "autopilot.h"
-#include "./guidance.h"
-#include <bits/stdc++.h> 
+#include "../kinematics/matrix.h" 
+#include "../environment/atmosphere.h" 
+#include "../control/autopilot.h" 
+#include "../guidance/guidance.h" 
+#include "../common/variables.h"
+#include <cmath>
 
-using namespace ARO; 
-using namespace N; 
-using namespace AT; 
-using namespace AP; 
-using namespace GD; 
+using namespace ARO; // Class inherited from aero.h
 
 // Function 2 - Rotate from Body Frame to Stability Frame via Alpha 
-void aero::rotate_B2S(double vector_in[], double alpha_beta_airspeed[], double vector_out[])
+void aero::rotate_B2S(double vector_in[], comvar* s_data, double vector_out[])
 {
 
 	double dcm[3][3]; 
@@ -52,7 +49,7 @@ void aero::rotate_B2S(double vector_in[], double alpha_beta_airspeed[], double v
 }
 
 // Function 3 - Rotate from Stability Frame to Body Frame via Alpha 
-void aero::rotate_S2B(double vector_in[], double alpha_beta_airspeed[], double vector_out[])
+void aero::rotate_S2B(double vector_in[], comvar* s_data, double vector_out[])
 {
 	
 	double dcm[3][3]; 
@@ -78,7 +75,7 @@ void aero::rotate_S2B(double vector_in[], double alpha_beta_airspeed[], double v
 }
 
 // Function 4 - Rotate from Body Frame to Wind Frame via Alpha and Beta
-void aero::rotate_B2W(double vector_in[], double alpha_beta_airspeed[], double vector_out[])
+void aero::rotate_B2W(double vector_in[], comvar* s_data, double vector_out[])
 {
 
 	double dcm[3][3]; 
@@ -104,7 +101,7 @@ void aero::rotate_B2W(double vector_in[], double alpha_beta_airspeed[], double v
 }
 
 // Function 5 - Rotate from Wind Frame to Body Frame via Alpha and Beta
-void aero::rotate_W2B(double vector_in[], double alpha_beta_airspeed[], double vector_out[])
+void aero::rotate_W2B(double vector_in[], comvar* s_data, double vector_out[])
 {
 
 	double dcm[3][3]; 
@@ -137,7 +134,7 @@ void aero::rotate_W2B(double vector_in[], double alpha_beta_airspeed[], double v
 
 // Function 6 - Drag Force Stackup - q * s * drag force coefficients --
 // DATCOM output for now, assume it accounts for Parasitic Drag and NOT induced drag
-void aero::drag_force_wind_x(double q, double alpha_beta_airspeed[], double& drag_out) 
+void aero::drag_force_wind_x(comvar* s_data) 
 {
 	
 	double params[28];
@@ -181,7 +178,7 @@ void aero::drag_force_wind_x(double q, double alpha_beta_airspeed[], double& dra
 }
 
 // Function 7 - Lift Force Stackup - q * s * lift force coefficients 
-void aero::lift_force_wind_z(double q_bar, double alpha_beta_airspeed[], double rot_body_radsec[], double& lift_out) 
+void aero::lift_force_wind_z(comvar* s_data) 
 {
 	
 	double params[28];
@@ -225,12 +222,13 @@ void aero::lift_force_wind_z(double q_bar, double alpha_beta_airspeed[], double 
 	aero::test_vehicle_cessna(params);
 	
 	// Lift Force = ( Cl_0 + Clq + Cl_alpha ) * q * s
-	lift_out = (params[19] + ( params[20] * alpha ) + ( (params[21] * rot_body_radsec[1])/( 2 * airspeed ) ) ) * q_bar * params[3]; 
+	lift_out = (params[19] + ( params[20] * alpha ) + ( (params[21] * rot_body_radsec[1])/( 2 * airspeed ) ) ) * q_bar * 
+	params[3]; 
 		
 } 
 
 // Function 8 - Side Force Stackup - q * s * side force coefficients 
-void aero::side_force_wind_y(double q_bar, double alpha_beta_airspeed[], double rot_body_radsec[], double& side_force_out) 
+void aero::side_force_wind_y(comvar* s_data) 
 {
 	
 	double params[28];
@@ -285,7 +283,7 @@ void aero::side_force_wind_y(double q_bar, double alpha_beta_airspeed[], double 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function 9 - Moment Stackup - q * s * l(control force lever arm) * moment coefficients
-void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_body_radsec[], double delevator, double drudder, double daileron, double moments_out_LMN_body[])
+void aero::moments_body(comvar* s_data)
 {
 
 	// THIS VOID CONTAINS ALL THE CONTROL SURFACE DEFLECTION MOMENT CONTRIBUTIONS TOO
@@ -361,16 +359,19 @@ void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_b
 	
 	// This is where you'd call the result of a autopilot if you had one -- to deflect the control surfaces 
 
-	// Rolling Moment (L) = CL_beta * beta + (Cl_p * p * b/ 2*v_total) + (Cl_r * r * b/ 2*v_total) + Cl_d_aileron * d_aileron + Cl_d_rudder * d_rudder 
-	moments_out_LMN_body[0] = ( (cl_beta * beta) + ( (cl_p * p * params[2]) / (2*airspeed) ) + ( (cl_r * r * params[2]) / (2*airspeed) ) 
-	+ ( cl_daileron * daileron ) + ( cl_drudder * drudder) ) * q_bar * params[3] * params[2]; 
+	// Rolling Moment (L) = CL_beta * beta + (Cl_p * p * b/ 2*v_total) + (Cl_r * r * b/ 2*v_total) + Cl_d_aileron * d_aileron + 
+	// Cl_d_rudder * d_rudder 
+	moments_out_LMN_body[0] = ( (cl_beta * beta) + ( (cl_p * p * params[2]) / (2*airspeed) ) + ( (cl_r * r * params[2]) / 
+	(2*airspeed) ) + ( cl_daileron * daileron ) + ( cl_drudder * drudder) ) * q_bar * params[3] * params[2]; 
 	
 	// Pitching Moment (M) = Cm + Cm_alpha * alpha + (Cm_q * q * c / 2 * v_total) + Cm_d_elevator * d_elevator
-	moments_out_LMN_body[1] = (cm + (cm_alpha * alpha) + (cm_q * q * params[1]) / (2*airspeed) + (cm_delevator * delevator) ) * q_bar * params[3] * params[1]; 
+	moments_out_LMN_body[1] = (cm + (cm_alpha * alpha) + (cm_q * q * params[1]) / (2*airspeed) + (cm_delevator * delevator) ) * 
+	q_bar * params[3] * params[1]; 
 	
-	// Yawing Moment (N) = CN_beta * beta + (Cn_p * p * b/ 2*v_total) + (Cn_r * r * b/ 2*v_total) + Cn_d_aileron * d_aileron + Cn_d_rudder * d_rudder 
-	moments_out_LMN_body[2] = ( (cn_beta * beta) + ( (cn_p * p * params[2]) / (2*airspeed) ) + ( (cn_r * r * params[2]) / (2*airspeed) ) 
-	+ ( cn_daileron * daileron ) + ( cn_drudder * drudder ) ) * q_bar * params[3] * params[2];
+	// Yawing Moment (N) = CN_beta * beta + (Cn_p * p * b/ 2*v_total) + (Cn_r * r * b/ 2*v_total) + Cn_d_aileron * d_aileron + 
+	// Cn_d_rudder * d_rudder 
+	moments_out_LMN_body[2] = ( (cn_beta * beta) + ( (cn_p * p * params[2]) / (2*airspeed) ) + ( (cn_r * r * params[2]) / 
+	(2*airspeed) ) + ( cn_daileron * daileron ) + ( cn_drudder * drudder ) ) * q_bar * params[3] * params[2];
 
 }
 
@@ -588,7 +589,9 @@ void aero::alpha_dot(double alpha_prev, double alpha_current, double dt, double&
 } 
 
 // Final Function - Aero Driver 
-void aero::aero_driver(double position[], double eulers[], double nz_NED, double dt, double time, double velocity_body[], double rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[], double &bank_required, double &heading_err) 
+void aero::aero_driver(double position[], double eulers[], double nz_NED, double dt, double time, double velocity_body[], double 
+rot_body_radsec[], double alpha_beta_airspeed[], double aero_force_body[], double aero_moments_body[], double &bank_required, double 
+&heading_err) 
 { 
 	// Internal Variables - 
 	double static_pressure; 
@@ -666,7 +669,8 @@ void aero::aero_driver(double position[], double eulers[], double nz_NED, double
 	//////////////////////////////////////////////////
 	
 	// Package Inputs for Vertical -- To Come - Guidance 
-	guidance_in[0] = 0.0; //(M_PI/16) * sin((M_PI/100) * time); // Theta Command - sine wave of 11.25 deg at a 200 second period - Simple Guidance Algorithm
+	guidance_in[0] = 0.0; //(M_PI/16) * sin((M_PI/100) * time); // Theta Command - sine wave of 11.25 deg at a 200 second 
+	// period - Simple Guidance Algorithm
 	guidance_in[1] = 0; // Pitch Rate Command - Not Integrated in AP
 	guidance_in[2] = -2000; // Altitude
 	dynamics_in[0] = eulers[1]; // Pitch from EoM
@@ -688,7 +692,7 @@ void aero::aero_driver(double position[], double eulers[], double nz_NED, double
 	// Call Lateral Autopilot 
 	autopilot::lateral_channel(lat_guidance_in, lat_dynamics_in, int_path_lat, dt, del_rud, del_ail); 
 	
-	del_rud = 0; 
+	del_rud = 0; // No Rudder for now
 	
 	// Next Up, add propulsion and moments too
 	aero::moments_body(alpha_beta_airspeed, q, rot_body_radsec, del_elevator, del_rud, del_ail, aero_moments_body); 

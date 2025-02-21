@@ -361,16 +361,19 @@ void aero::moments_body(double alpha_beta_airspeed[], double q_bar, double rot_b
 	
 	// This is where you'd call the result of a autopilot if you had one -- to deflect the control surfaces 
 
-	// Rolling Moment (L) = CL_beta * beta + (Cl_p * p * b/ 2*v_total) + (Cl_r * r * b/ 2*v_total) + Cl_d_aileron * d_aileron + Cl_d_rudder * d_rudder 
-	moments_out_LMN_body[0] = ( (cl_beta * beta) + ( (cl_p * p * params[2]) / (2*airspeed) ) + ( (cl_r * r * params[2]) / (2*airspeed) ) 
-	+ ( cl_daileron * daileron ) + ( cl_drudder * drudder) ) * q_bar * params[3] * params[2]; 
+	// Rolling Moment (L) = CL_beta * beta + (Cl_p * p * b/ 2*v_total) + (Cl_r * r * b/ 2*v_total) + Cl_d_aileron * d_aileron + 
+	// Cl_d_rudder * d_rudder 
+	moments_out_LMN_body[0] = ( (cl_beta * beta) + ( (cl_p * p * params[2]) / (2*airspeed) ) + ( (cl_r * r * params[2]) / 
+	(2*airspeed) ) + ( cl_daileron * daileron ) + ( cl_drudder * drudder) ) * q_bar * params[3] * params[2]; 
 	
 	// Pitching Moment (M) = Cm + Cm_alpha * alpha + (Cm_q * q * c / 2 * v_total) + Cm_d_elevator * d_elevator
-	moments_out_LMN_body[1] = (cm + (cm_alpha * alpha) + (cm_q * q * params[1]) / (2*airspeed) + (cm_delevator * delevator) ) * q_bar * params[3] * params[1]; 
+	moments_out_LMN_body[1] = (cm + (cm_alpha * alpha) + (cm_q * q * params[1]) / (2*airspeed) + (cm_delevator * delevator) ) * 
+	q_bar * params[3] * params[1]; 
 	
-	// Yawing Moment (N) = CN_beta * beta + (Cn_p * p * b/ 2*v_total) + (Cn_r * r * b/ 2*v_total) + Cn_d_aileron * d_aileron + Cn_d_rudder * d_rudder 
-	moments_out_LMN_body[2] = ( (cn_beta * beta) + ( (cn_p * p * params[2]) / (2*airspeed) ) + ( (cn_r * r * params[2]) / (2*airspeed) ) 
-	+ ( cn_daileron * daileron ) + ( cn_drudder * drudder ) ) * q_bar * params[3] * params[2];
+	// Yawing Moment (N) = CN_beta * beta + (Cn_p * p * b/ 2*v_total) + (Cn_r * r * b/ 2*v_total) + Cn_d_aileron * d_aileron + 
+	// Cn_d_rudder * d_rudder 
+	moments_out_LMN_body[2] = ( (cn_beta * beta) + ( (cn_p * p * params[2]) / (2*airspeed) ) + ( (cn_r * r * params[2]) / 
+	(2*airspeed) ) + ( cn_daileron * daileron ) + ( cn_drudder * drudder ) ) * q_bar * params[3] * params[2];
 
 }
 

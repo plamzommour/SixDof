@@ -68,6 +68,7 @@ void earth_kin(comvar* s_data)
 	s_data->z_ecef = current_ecef_loc.z; 
 	
 	// Find Current Vehicle Latitude and Longitude -- Script from Chat GPT (experimental)
+	// Note - I have not tried this. 
 
 		// Constants for WGS84 ellipsoid
 		const double a = 6378137.0;           // semi-major axis in meters
