@@ -1,0 +1,2 @@
+v_init 200
+theta 45
