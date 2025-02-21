@@ -82,7 +82,7 @@ void guidance::waypoint_guidance(double position[], double eulers[], double alph
 	
 	turn_radius = ( alpha_beta_airspeed[2] * 13) / heading_err; // Turn Radius --- 13 was added as a time-required piece. Can be tuned. 
 	
-	// Third Step - Compute Required Lateral Acceleration
+	// Third Step - Compute Required Lateral Acceleration v^2/r
 	ay_req = (alpha_beta_airspeed[2]*alpha_beta_airspeed[2]) / turn_radius; 
 	
 	// Fourth Step - Calculate Bank Angle Required -- Compare to Gravity 
