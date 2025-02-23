@@ -17,7 +17,9 @@ A work-in-progress 6DoF sim that takes lessons learned during the flat earth sim
 
 This sim is implementing enhanced class syntax for ease of use and a unified variable structure. 
 
-Also included is an enhanced build script and a more organized directory architecture. 
+Also included is an enhanced build script and a more organized directory architecture with dedicated inputs and outputs. 
+
+ECEF Sim does not currently build and has not achieved first motion yet.  I suspect it would take at least a few solid days to get first motion. 
 
 Usage and accesses to this simulation are controlled by Paul D. Zimmer, original creator.  
 Private access for now until bugs are worked out. 
