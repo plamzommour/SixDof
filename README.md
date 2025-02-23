@@ -21,5 +21,10 @@ Also included is an enhanced build script and a more organized directory archite
 
 ECEF Sim does not currently build and has not achieved first motion yet.  I suspect it would take at least a few solid days to get first motion. 
 
+Random Physics Sims: 
+
+Some small C++, Matlab and Python scripts I generated to practice for a modeling, simulation and analysis interview with Anduril. 
+There are a number of dynamic and physics-based simulations in there.  All run and all build.  I use the included build.sh script to build these things, but you can do what you please. 
+
 Usage and accesses to this simulation are controlled by Paul D. Zimmer, original creator.  
 Private access for now until bugs are worked out. 
